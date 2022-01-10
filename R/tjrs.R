@@ -6,6 +6,9 @@ captcha_download_tjrs <- function(path) {
 
 captcha_oracle_tjrs <- function(path, model = NULL) {
 
+  # path <- "data-raw/tests/"
+  # model <- NULL
+
   u_principal <- "http://www.tjrs.jus.br/busca/?tb=proc"
   u_verify <- "https://www.tjrs.jus.br/site_php/consulta/verifica_codigo_novo.php"
   u_captcha <- "https://www.tjrs.jus.br/site_php/consulta/human_check/humancheck_showcode.php"
@@ -56,6 +59,11 @@ captcha_oracle_tjrs <- function(path, model = NULL) {
   } else {
     label <- captcha::decrypt(f_captcha, model)
   }
+
+  ## teste aceita varios chutes
+  # label_bkp <- label
+  # label <- "1234"
+  # label <- label_bkp
 
   query$code <- label
   r <- httr::GET(u_verify, query = query)

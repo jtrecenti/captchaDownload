@@ -12,6 +12,10 @@ captcha_download_trf5 <- function(path) {
 }
 
 captcha_oracle_trf5 <- function(path, model = NULL) {
+
+  # path <- "data-raw/tests/"
+  # model <- NULL
+
   u <- "https://pje.trf5.jus.br/pjeconsulta/ConsultaPublica/listView.seam"
   r0 <- httr::GET(u)
   j_id <- r0 %>%
@@ -31,6 +35,11 @@ captcha_oracle_trf5 <- function(path, model = NULL) {
   } else {
     label <- captcha_label(f_captcha)
   }
+
+  ## teste aceita varios chutes
+  # label_bkp <- label
+  # label <- "123422"
+  # label <- label_bkp
 
   body <- list(
     "AJAXREQUEST" = "_viewRoot",

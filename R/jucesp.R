@@ -15,6 +15,9 @@ captcha_download_jucesp <- function(path) {
 
 captcha_oracle_jucesp <- function(path, model = NULL) {
 
+  # path <- "data-raw/tests/"
+  # model <- NULL
+
   u <- "https://www.jucesponline.sp.gov.br/Pre_Visualiza.aspx?idproduto=&nire=35222827792"
   r0 <- httr::GET(u)
   h <- xml2::read_html(r0)
@@ -37,6 +40,10 @@ captcha_oracle_jucesp <- function(path, model = NULL) {
     label <- captcha::decrypt(f_captcha, model)
   }
 
+  ## teste aceita varios chutes
+  # label_bkp <- label
+  # label <- "12345"
+  # label <- label_bkp
 
   parm <- list(
     "ctl00$ajaxMaster" = "ctl00$cphContent$ajaxForm|ctl00$cphContent$frmPreVisualiza$btEntrar",

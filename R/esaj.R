@@ -5,6 +5,9 @@ captcha_download_esaj <- function(path) {
 
 captcha_oracle_esaj <- function(path, model = NULL) {
 
+  # path <- "data-raw/tests/"
+  # model <- NULL
+
   fs::dir_create(path)
 
   f_captcha <- fs::file_temp(pattern = "esaj", tmp_dir = path, ext = ".png")
@@ -26,6 +29,11 @@ captcha_oracle_esaj <- function(path, model = NULL) {
   } else {
     label <- captcha::decrypt(f_captcha, model)
   }
+
+  ## teste aceita varios chutes
+  # label_bkp <- label
+  # label <- "12345"
+  # label <- label_bkp
 
   query <- list(
     "dadosConsulta.localPesquisa.cdLocal" = "-1",

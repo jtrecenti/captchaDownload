@@ -15,6 +15,10 @@ captcha_download_tjpe <- function(path) {
 
 
 captcha_oracle_tjpe <- function(path, model = NULL) {
+
+  # path <- "data-raw/tjpe"
+  # model <- NULL
+
   ssl <- httr::config(ssl_verifypeer = FALSE)
   id <- "00034728720148171030"
   u_inicial <- "https://srv01.tjpe.jus.br/consultaprocessualunificada/"
@@ -36,6 +40,11 @@ captcha_oracle_tjpe <- function(path, model = NULL) {
   } else {
     label <- captcha::decrypt(f_captcha, model)
   }
+
+  ## teste aceita varios chutes
+  # label_bkp <- label
+  # label <- "12345"
+  # label <- label_bkp
 
   u_consulta <- "https://srv01.tjpe.jus.br/consultaprocessualunificadaservico/api/processo"
   r_consulta <- httr::POST(

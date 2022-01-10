@@ -12,6 +12,9 @@ captcha_download_cadesp <- function(path) {
 
 captcha_oracle_cadesp <- function(path, model = NULL) {
 
+  # path <- "data-raw/tests/"
+  # model <- NULL
+
   fs::dir_create(path)
 
   u_prefix <- "https://www.cadesp.fazenda.sp.gov.br"
@@ -47,6 +50,12 @@ captcha_oracle_cadesp <- function(path, model = NULL) {
   } else {
     label <- captcha_label(f)
   }
+
+  ## teste aceita varios chutes
+  # label_bkp <- label
+  # label <- "1234"
+  # label <- label_bkp
+
 
   # validation request
   u_validacao_suffix <- "Pages/Cadastro/Consultas/ConsultaPublica/ConsultaPublica.aspx"

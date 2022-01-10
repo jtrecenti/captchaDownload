@@ -4,6 +4,10 @@ captcha_download_tjmg <- function(path) {
 }
 
 captcha_oracle_tjmg <- function(path, model = NULL) {
+
+  # path <- "data-raw/tests/"
+  # model <- NULL
+
   fs::dir_create(path)
 
   # case to be tested
@@ -31,6 +35,13 @@ captcha_oracle_tjmg <- function(path, model = NULL) {
   } else {
     label <- captcha_label(f_captcha)
   }
+
+  ## teste aceita varios chutes
+  # label_bkp <- label
+  # label <- "123422"
+  # label <- label_bkp
+
+
   payload <- list(
     "callCount" = "1",
     "nextReverseAjaxIndex" = "0",

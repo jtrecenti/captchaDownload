@@ -5,6 +5,9 @@ captcha_download_tjes <- function(path) {
 
 captcha_oracle_tjes <- function(path, model = NULL) {
 
+  # path <- "data-raw/tests/"
+  # model <- NULL
+
   id <- "00086512720208080000"
   base <- "http://aplicativos.tjes.jus.br/consultaunificada/faces/"
   httr::handle_reset(base)
@@ -54,6 +57,12 @@ captcha_oracle_tjes <- function(path, model = NULL) {
   } else {
     label <- captcha::decrypt(f_captcha, model)
   }
+
+  ## teste aceita varios chutes
+  # label_bkp <- label
+  # label <- "12345"
+  # label <- label_bkp
+
 
   # 0 is an extra label
   form$campoCaptcha <- stringr::str_remove(label, "0$")
