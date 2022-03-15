@@ -75,7 +75,65 @@ captcha_trt_test <- function(u_consulta, token, label) {
   acertou
 }
 
-captcha_oracle_trt_com_feedback <- function(path, model = NULL, max_ntry = 10) {
+#' O algoritmo funcionaria assim. Primeiro, ele pega qual é a letra que
+#' tem a menor diferença entre o primeiro e o segundo candidatos.
+#' Depois, ele "troca" a posição do primeiro canditado com o segundo.
+#' Se esse teste já foi realizado, ele verifica qual letra seria considerada,
+#' usando o mesmo critério que o anterior (menor diferença entre o primeiro
+#' e o segundo candidatos). Dessa vez, no entanto, ele teria de considerar
+#' o terceiro candidatos.
+#'
+#' Vamos pensar em outra heurística: menor probabilidade.
+#' Nessa heurística, selecionamos a letra com menor probabilidade
+#' e pegamos o segundo candidato dessa letra.
+
+
+#' Calculates n captcha candidate labels
+#'
+#' Using all captcha combinations from some cut value
+#'
+#' @param f_captcha captcha file
+#' @param model model that generates logits
+#' @param cut_value so that we make combinations from real values
+#' @param n maximum number of candidates
+#'
+#' @export
+captcha_candidates <- function(f_captcha, model, cut_value = log(.01), n) {
+
+  # from captcha::decrypt
+  model$model$eval()
+  transformed <- model$model$transform(f_captcha)
+
+  # calculate log-probability
+  probs <- as.matrix(torch::nnf_log_softmax(model$model(transformed)[1,..], 2))
+
+  comb_index <- apply(probs > cut_value, 1, which)
+  comb <- purrr::map(purrr::cross(comb_index), purrr::flatten_int)
+  comb_matrix <- do.call(rbind, comb)
+  candidates <- apply(
+    comb_matrix,
+    MARGIN = 1,
+    FUN = function(x) paste(model$model$vocab[x], collapse = "")
+  )
+  # calculates the log-likelihood of that candidate
+  lkl_candidate <- apply(
+    comb_matrix,
+    MARGIN = 1,
+    FUN = function(x) sum(sapply(seq_along(x), function(z) probs[z,x[z]]))
+  )
+  candidates <- candidates[order(lkl_candidate, decreasing = TRUE)]
+  head(candidates, n)
+}
+
+#' Classifica captchas com feedback do oraculo
+#'
+#' @param path path
+#' @param model model
+#' @param max_ntry max tries
+#' @param manual whether to annotate manually when model fails
+#'
+#' @export
+captcha_oracle_trt_com_feedback <- function(path, model = NULL, max_ntry = 10, manual = TRUE) {
 
   # path <- "data-raw/trt/"
   # model <- NULL
@@ -97,49 +155,37 @@ captcha_oracle_trt_com_feedback <- function(path, model = NULL, max_ntry = 10) {
   }
 
   u_consulta <- "https://pje-consulta.trt3.jus.br/pje-consulta-api/api/processos/2104879"
+  ntry <- 1
 
   if (is.null(model)) {
     label <- captcha_label(f_captcha)
   } else {
-    label <- captcha::decrypt(f_captcha, model)
+    label <- captcha_candidates(f_captcha, model, n = max_ntry)
+  }
+  # browser()
+
+  acertou <- captcha_trt_test(u_consulta, token, label[1])
+  if (acertou) {
+    usethis::ui_done("Acertou!!!")
+    label <- label[ntry]
+  } else {
+    max_ntry_model <- min(max_ntry, length(label))
+    usethis::ui_info("Temos {max_ntry_model} candidatos...")
   }
 
-  acertou <- captcha_trt_test(u_consulta, token, label)
-  ntry <- 0
-  historico_chutes <- character(0)
-
-  while (!acertou && ntry < max_ntry && !is.null(model)) {
+  while (!acertou && ntry <= max_ntry_model && !is.null(model)) {
+    usethis::ui_info("Errou! O chute foi: {label[ntry]}")
     ntry <- ntry + 1
-    historico_chutes <- c(historico_chutes, label)
-    usethis::ui_info("Errou! O chute foi: {label}")
-
-    # calcula os logits
-    model$model$eval()
-    transformed <- model$model$transform(f_captcha)
-    logits <- as.matrix(model$model(transformed)[1,..])
-
-    # heuristics to update logits
-    while (label %in% historico_chutes) {
-      # pega a ordem dos captchas. O chute é a primeira linha
-      logit_order <- apply(logits, 1, order, decreasing = TRUE)
-      first_logit <- logits[logit_order[1,]]
-      second_logit <- logits[logit_order[2,]]
-      # metodo da menor distancia entre primeiro e segundo chutes
-      to_change <- which.min(first_logit - second_logit)
-      # modifica os logits
-      logits[to_change, logit_order[1,to_change]] <- -1e3
-      ind <- apply(logits, 1, which.max)
-      label <- paste(model$model$vocab[ind], collapse = "")
+    acertou <- captcha_trt_test(u_consulta, token, label[ntry])
+    if (acertou) {
+      usethis::ui_done("Acertou!!!")
+      label <- label[ntry]
     }
-    acertou <- captcha_trt_test(u_consulta, token, label)
-    if (acertou) usethis::ui_done("Acertou!!!")
   }
-
 
   # if tried {max_ntry} times and the model still did not find it
   ntry <- 0
-  while (!acertou && ntry < max_ntry) {
-    usethis::ui_info("Errou! O chute foi: {label}")
+  while (!acertou && ntry < max_ntry && manual) {
     ntry <- ntry + 1
     label <- captcha_label(f_captcha)
     acertou <- captcha_trt_test(u_consulta, token, label)
