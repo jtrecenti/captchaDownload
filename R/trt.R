@@ -168,6 +168,7 @@ captcha_oracle_trt_com_feedback <- function(path, model = NULL, max_ntry = 10, m
 
   acertou <- captcha_trt_test(u_consulta, token, label[1])
   da_log <- tibble::tibble(
+    ntry = ntry,
     label = label[ntry],
     type = "auto",
     result = acertou
@@ -180,12 +181,13 @@ captcha_oracle_trt_com_feedback <- function(path, model = NULL, max_ntry = 10, m
     usethis::ui_info("Temos {max_ntry_model} candidatos...")
   }
 
-  while (!acertou && ntry <= max_ntry_model && !is.null(model)) {
+  while (!acertou && ntry < max_ntry_model && !is.null(model)) {
     usethis::ui_info("Errou! O chute foi: {label[ntry]}")
     ntry <- ntry + 1
     acertou <- captcha_trt_test(u_consulta, token, label[ntry])
     da_log <- tibble::add_row(
       da_log,
+      ntry = ntry,
       label = label[ntry],
       type = "auto",
       result = acertou
