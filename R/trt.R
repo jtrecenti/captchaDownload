@@ -156,15 +156,22 @@ captcha_oracle_trt_com_feedback <- function(path, model = NULL, max_ntry = 10, m
 
   u_consulta <- "https://pje-consulta.trt3.jus.br/pje-consulta-api/api/processos/2104879"
   ntry <- 1
-
-  if (is.null(model)) {
-    label <- captcha_label(f_captcha)
-  } else {
-    label <- captcha_candidates(f_captcha, model, n = max_ntry)
-  }
+  label <- captcha_candidates(f_captcha, model, n = max_ntry)
   # browser()
 
+  f_log <- paste0(
+    dirname(path),
+    "/logs/",
+    fs::path_ext_set(f_captcha, ".log")
+  )
+  fs::dir_create(dirname(f_log))
+
   acertou <- captcha_trt_test(u_consulta, token, label[1])
+  da_log <- tibble::tibble(
+    label = label[ntry],
+    type = "auto",
+    result = acertou
+  )
   if (acertou) {
     usethis::ui_done("Acertou!!!")
     label <- label[ntry]
@@ -177,6 +184,12 @@ captcha_oracle_trt_com_feedback <- function(path, model = NULL, max_ntry = 10, m
     usethis::ui_info("Errou! O chute foi: {label[ntry]}")
     ntry <- ntry + 1
     acertou <- captcha_trt_test(u_consulta, token, label[ntry])
+    da_log <- tibble::add_row(
+      da_log,
+      label = label[ntry],
+      type = "auto",
+      result = acertou
+    )
     if (acertou) {
       usethis::ui_done("Acertou!!!")
       label <- label[ntry]
@@ -189,8 +202,15 @@ captcha_oracle_trt_com_feedback <- function(path, model = NULL, max_ntry = 10, m
     ntry <- ntry + 1
     label <- captcha_label(f_captcha)
     acertou <- captcha_trt_test(u_consulta, token, label)
+    da_log <- tibble::add_row(
+      da_log,
+      label = label,
+      type = "manual",
+      result = acertou
+    )
   }
 
   lab_oracle <- paste0(label, "_", as.character(as.numeric(acertou)))
   captcha::classify(f_captcha, lab_oracle, rm_old = TRUE)
+  readr::write_csv(da_log, f_log)
 }
