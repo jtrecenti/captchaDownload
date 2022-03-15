@@ -162,7 +162,7 @@ captcha_oracle_trt_com_feedback <- function(path, model = NULL, max_ntry = 10, m
   f_log <- paste0(
     dirname(path),
     "/logs/",
-    fs::path_ext_set(f_captcha, ".log")
+    fs::path_ext_set(basename(f_captcha), ".log")
   )
   fs::dir_create(dirname(f_log))
 
