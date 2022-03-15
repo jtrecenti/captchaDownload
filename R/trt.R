@@ -196,6 +196,10 @@ captcha_oracle_trt_com_feedback <- function(path, model = NULL, max_ntry = 10, m
     }
   }
 
+  if (!acertou && !manual) {
+    label <- label[ntry]
+  }
+
   # if tried {max_ntry} times and the model still did not find it
   ntry <- 0
   while (!acertou && ntry < max_ntry && manual) {
