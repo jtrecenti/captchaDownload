@@ -147,7 +147,7 @@ captcha_oracle_esaj_com_feedback <- function(path, model = NULL, max_ntry = 10, 
     usethis::ui_info("Temos {max_ntry_model} candidatos...")
   }
 
-  while (!acertou && ntry <= max_ntry_model && !is.null(model)) {
+  while (!acertou && ntry < max_ntry_model && !is.null(model)) {
     usethis::ui_info("Errou! O chute foi: {label[ntry]}")
     ntry <- ntry + 1
     acertou <- captcha_esaj_test(label[ntry])
