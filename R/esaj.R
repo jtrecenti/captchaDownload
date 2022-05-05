@@ -95,7 +95,7 @@ captcha_esaj_test <- function(label) {
 }
 
 
-captcha_oracle_esaj_com_feedback <- function(path, model = NULL, max_ntry = 10) {
+captcha_oracle_esaj_com_feedback <- function(path, model = NULL, max_ntry = 10, manual = TRUE) {
 
   # path <- "data-raw/trt/"
   # model <- NULL
@@ -125,7 +125,20 @@ captcha_oracle_esaj_com_feedback <- function(path, model = NULL, max_ntry = 10) 
   }
   # browser()
 
+  f_log <- paste0(
+    dirname(path),
+    "/logs/",
+    fs::path_ext_set(basename(f_captcha), ".log")
+  )
+  fs::dir_create(dirname(f_log))
+
   acertou <- captcha_esaj_test(label[1])
+  da_log <- tibble::tibble(
+    ntry = ntry,
+    label = label[ntry],
+    type = "auto",
+    result = acertou
+  )
   if (acertou) {
     usethis::ui_done("Acertou!!!")
     label <- label[ntry]
@@ -138,20 +151,39 @@ captcha_oracle_esaj_com_feedback <- function(path, model = NULL, max_ntry = 10) 
     usethis::ui_info("Errou! O chute foi: {label[ntry]}")
     ntry <- ntry + 1
     acertou <- captcha_esaj_test(label[ntry])
+    da_log <- tibble::add_row(
+      da_log,
+      ntry = ntry,
+      label = label[ntry],
+      type = "auto",
+      result = acertou
+    )
     if (acertou) {
       usethis::ui_done("Acertou!!!")
       label <- label[ntry]
     }
   }
 
+  if (!acertou && !manual) {
+    label <- label[ntry]
+  }
+
   # if tried {max_ntry} times and the model still did not find it
   ntry <- 0
-  while (!acertou && ntry < max_ntry) {
+  while (!acertou && ntry < max_ntry && manual) {
     ntry <- ntry + 1
     label <- captcha_label(f_captcha)
     acertou <- captcha_esaj_test(label)
+    da_log <- tibble::add_row(
+      da_log,
+      label = label,
+      type = "manual",
+      result = acertou
+    )
   }
 
   lab_oracle <- paste0(label, "_", as.character(as.numeric(acertou)))
   captcha::classify(f_captcha, lab_oracle, rm_old = TRUE)
+  readr::write_csv(da_log, f_log)
+
 }
