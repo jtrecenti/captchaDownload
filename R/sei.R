@@ -75,12 +75,68 @@ captcha_download_sei <- function(path, classify = FALSE) {
   f
 }
 
-captcha_sei_test <- function(label, ans) {
-  !is.na(label) && label == ans
-}
+# captcha_sei_test <- function(label, ans) {
+#   !is.na(label) && label == ans
+# }
+#
+# captcha_oracle_sei_com_feedback <- function(path, model = NULL, max_ntry = 10) {
+#
+#   ssl <- httr::config(ssl_verifypeer = FALSE)
+#   u <- "https://sei.economia.gov.br/sei/modulos/pesquisa/md_pesq_processo_pesquisar.php?acao_externa=protocolo_pesquisar&acao_origem_externa=protocolo_pesquisar&id_orgao_acesso_externo=0"
+#   r <- httr::GET(u, ssl)
+#   u_captcha_endpoint <- r %>%
+#     xml2::read_html() %>%
+#     xml2::xml_find_all("//img[contains(@src,'captcha')]") %>%
+#     xml2::xml_attr("src")
+#   u_captcha <- paste0("https://sei.economia.gov.br", u_captcha_endpoint)
+#   f_captcha <- captcha_download_generic(u_captcha, "sei", ".png", path, ssl)
+#   xy <- u_captcha_endpoint %>%
+#     urltools::param_get("codetorandom") %>%
+#     stringr::str_split("-") %>%
+#     unlist() %>%
+#     as.numeric()
+#   ans <- captcha_classify_sei(xy[1], xy[2])
+#
+#   ntry <- 1
+#
+#   if (is.null(model)) {
+#     label <- ans
+#   } else {
+#     label <- captcha_candidates(f_captcha, model, n = max_ntry)
+#   }
+#   # browser()
+#
+#   acertou <- captcha_sei_test(label[1], ans)
+#   if (acertou) {
+#     usethis::ui_done("Acertou!!!")
+#     label <- label[ntry]
+#   } else {
+#     max_ntry_model <- min(max_ntry, length(label))
+#     usethis::ui_info("Temos {max_ntry_model} candidatos...")
+#   }
+#
+#   while (!acertou && ntry <= max_ntry_model && !is.null(model)) {
+#     usethis::ui_info("Errou! O chute foi: {label[ntry]}")
+#     ntry <- ntry + 1
+#     acertou <- captcha_sei_test(label[ntry], ans)
+#     if (acertou) {
+#       usethis::ui_done("Acertou!!!")
+#       label <- label[ntry]
+#     }
+#   }
+#
+#   # if tried {max_ntry} times and the model still did not find it
+#   ntry <- 0
+#   while (!acertou && ntry < max_ntry) {
+#     ntry <- ntry + 1
+#     label <- ans
+#     acertou <- captcha_sei_test(label, ans)
+#   }
+#   lab_oracle <- paste0(label, "_", as.character(as.numeric(acertou)))
+#   captcha::classify(f_captcha, lab_oracle, rm_old = TRUE)
+# }
 
-captcha_oracle_sei_com_feedback <- function(path, model = NULL, max_ntry = 10) {
-
+captcha_access_sei <- function(path) {
   ssl <- httr::config(ssl_verifypeer = FALSE)
   u <- "https://sei.economia.gov.br/sei/modulos/pesquisa/md_pesq_processo_pesquisar.php?acao_externa=protocolo_pesquisar&acao_origem_externa=protocolo_pesquisar&id_orgao_acesso_externo=0"
   r <- httr::GET(u, ssl)
@@ -97,41 +153,10 @@ captcha_oracle_sei_com_feedback <- function(path, model = NULL, max_ntry = 10) {
     as.numeric()
   ans <- captcha_classify_sei(xy[1], xy[2])
 
-  ntry <- 1
+  list(f_captcha = f_captcha, ans = ans)
 
-  if (is.null(model)) {
-    label <- ans
-  } else {
-    label <- captcha_candidates(f_captcha, model, n = max_ntry)
-  }
-  # browser()
+}
 
-  acertou <- captcha_sei_test(label[1], ans)
-  if (acertou) {
-    usethis::ui_done("Acertou!!!")
-    label <- label[ntry]
-  } else {
-    max_ntry_model <- min(max_ntry, length(label))
-    usethis::ui_info("Temos {max_ntry_model} candidatos...")
-  }
-
-  while (!acertou && ntry <= max_ntry_model && !is.null(model)) {
-    usethis::ui_info("Errou! O chute foi: {label[ntry]}")
-    ntry <- ntry + 1
-    acertou <- captcha_sei_test(label[ntry], ans)
-    if (acertou) {
-      usethis::ui_done("Acertou!!!")
-      label <- label[ntry]
-    }
-  }
-
-  # if tried {max_ntry} times and the model still did not find it
-  ntry <- 0
-  while (!acertou && ntry < max_ntry) {
-    ntry <- ntry + 1
-    label <- ans
-    acertou <- captcha_sei_test(label, ans)
-  }
-  lab_oracle <- paste0(label, "_", as.character(as.numeric(acertou)))
-  captcha::classify(f_captcha, lab_oracle, rm_old = TRUE)
+captcha_test_sei <- function(obj, label) {
+  !is.na(label) && label == obj$ans
 }

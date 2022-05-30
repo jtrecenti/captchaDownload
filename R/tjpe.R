@@ -158,3 +158,39 @@ captcha_oracle_tjpe_com_feedback <- function(path, model = NULL, max_ntry = 10) 
   lab_oracle <- paste0(label, "_", as.character(as.numeric(acertou)))
   captcha::classify(f_captcha, lab_oracle, rm_old = TRUE)
 }
+
+
+captcha_access_tjpe <- function(path) {
+  ssl <- httr::config(ssl_verifypeer = FALSE)
+  id <- "00034728720148171030"
+  u_inicial <- "https://srv01.tjpe.jus.br/consultaprocessualunificada/"
+  httr::handle_reset(u_inicial)
+  r_inicial <- httr::GET(u_inicial, ssl)
+
+  u_captcha <- "https://srv01.tjpe.jus.br/consultaprocessualunificadaservico/api/captcha"
+  f_captcha <- fs::file_temp(tmp_dir = path, ext = ".png", pattern = "tjpe")
+  captcha <- httr::GET(u_captcha, ssl)
+  captcha %>%
+    httr::content() %>%
+    purrr::pluck("image") %>%
+    stringr::str_remove("data:image/png;base64,") %>%
+    base64enc::base64decode() %>%
+    writeBin(f_captcha)
+
+  list(f_captcha = f_captcha)
+}
+
+captcha_test_tjpe <- function(obj, label) {
+  ssl <- httr::config(ssl_verifypeer = FALSE)
+  id <- "00034728720148171030"
+  u_consulta <- "https://srv01.tjpe.jus.br/consultaprocessualunificadaservico/api/processo"
+  r_consulta <- httr::POST(
+    u_consulta,
+    body = list(npu = id),
+    httr::add_headers("captcha" = label),
+    encode = "json",
+    ssl
+  )
+  acertou <- r_consulta$status_code == 200
+  acertou
+}

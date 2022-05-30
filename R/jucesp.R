@@ -74,33 +74,7 @@ captcha_oracle_jucesp <- function(path, model = NULL) {
   captcha::classify(f_captcha, lab_oracle, rm_old = TRUE)
 }
 
-captcha_jucesp_test <- function(label, vs, ev) {
-  u <- "https://www.jucesponline.sp.gov.br/Pre_Visualiza.aspx?idproduto=&nire=35222827792"
-  parm <- list(
-    "ctl00$ajaxMaster" = "ctl00$cphContent$ajaxForm|ctl00$cphContent$frmPreVisualiza$btEntrar",
-    "ctl00$frmLogin$txtLogin" = "",
-    "ctl00$frmLogin$tweLogin_ClientState" = "",
-    "ctl00$frmLogin$txtSenha" = "",
-    "ctl00$frmLogin$tweSenha_ClientState" = "",
-    "ctl00$cphContent$frmPreVisualiza$CaptchaControl1" = label,
-    "__EVENTTARGET" = "",
-    "__EVENTARGUMENT" = "",
-    "__VIEWSTATE" = vs,
-    "__VIEWSTATEGENERATOR" = "BE1E90E5",
-    "__EVENTVALIDATION" = ev,
-    "__ASYNCPOST" = "false",
-    "ctl00$cphContent$frmPreVisualiza$btEntrar" = "Continuar"
-  )
-  r_final <- httr::POST(u, body = parm, encode = "form")
-  acertou <- r_final %>%
-    xml2::read_html() %>%
-    xml2::xml_find_first(".//*[@id='dados']") %>%
-    xml2::xml_text() %>%
-    stringr::str_squish() %>%
-    stringr::str_detect("TERRANOVA CONSULTORIA") %>%
-    isTRUE()
-  acertou
-}
+
 
 
 captcha_oracle_jucesp_com_feedback <- function(path, model = NULL, max_ntry = 0) {
@@ -145,4 +119,46 @@ captcha_oracle_jucesp_com_feedback <- function(path, model = NULL, max_ntry = 0)
   label <- label[1]
   lab_oracle <- paste0(label, "_", as.character(as.numeric(acertou)))
   captcha::classify(f_captcha, lab_oracle, rm_old = TRUE)
+}
+
+
+captcha_jucesp_access <- function(f_captcha) {
+  u <- "https://www.jucesponline.sp.gov.br/Pre_Visualiza.aspx?idproduto=&nire=35222827792"
+  httr::handle_reset(u)
+  r0 <- httr::GET(u)
+  h <- xml2::read_html(r0)
+  vs <- scrapr::html_viewstate(h)
+  ev <- scrapr::html_eventval(h)
+  guid <- stringr::str_extract(httr::content(r0, "text"), "(?<=guid=)[^\"]+")
+  u_captcha <- paste0("https://www.jucesponline.sp.gov.br/CaptchaImage.aspx?guid=", guid)
+  r_captcha <- httr::GET(u_captcha, httr::write_disk(f_captcha, TRUE))
+  list(vs = vs, ev = ev)
+}
+
+captcha_jucesp_test <- function(obj, label) {
+  u <- "https://www.jucesponline.sp.gov.br/Pre_Visualiza.aspx?idproduto=&nire=35222827792"
+  parm <- list(
+    "ctl00$ajaxMaster" = "ctl00$cphContent$ajaxForm|ctl00$cphContent$frmPreVisualiza$btEntrar",
+    "ctl00$frmLogin$txtLogin" = "",
+    "ctl00$frmLogin$tweLogin_ClientState" = "",
+    "ctl00$frmLogin$txtSenha" = "",
+    "ctl00$frmLogin$tweSenha_ClientState" = "",
+    "ctl00$cphContent$frmPreVisualiza$CaptchaControl1" = label,
+    "__EVENTTARGET" = "",
+    "__EVENTARGUMENT" = "",
+    "__VIEWSTATE" = obj$vs,
+    "__VIEWSTATEGENERATOR" = "BE1E90E5",
+    "__EVENTVALIDATION" = obj$ev,
+    "__ASYNCPOST" = "false",
+    "ctl00$cphContent$frmPreVisualiza$btEntrar" = "Continuar"
+  )
+  r_final <- httr::POST(u, body = parm, encode = "form")
+  acertou <- r_final %>%
+    xml2::read_html() %>%
+    xml2::xml_find_first(".//*[@id='dados']") %>%
+    xml2::xml_text() %>%
+    stringr::str_squish() %>%
+    stringr::str_detect("TERRANOVA CONSULTORIA") %>%
+    isTRUE()
+  acertou
 }
