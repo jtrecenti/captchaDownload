@@ -19,3 +19,5 @@ data-raw/tjrs
 data-raw/trf5
 data-raw/trt/*
 !data-raw/trt/trt-data.R
+data-raw/rcaptcha
+data-raw/sei
