@@ -9,7 +9,7 @@
 #'
 #' @export
 captcha_candidates <- function(f_captcha, model, cut_value = log(.01), n) {
-
+  # browser()
   # from captcha::decrypt
   model$model$eval()
   transformed <- model$model$transform(f_captcha)

@@ -18,7 +18,6 @@ captcha_oracle <- function(path, model = NULL, max_ntry = 10, manual = TRUE,
                            captcha_access, captcha_test) {
 
   # browser()
-
   fs::dir_create(path)
   obj <- captcha_access(path)
   f_captcha <- obj$f_captcha

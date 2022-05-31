@@ -122,8 +122,13 @@ captcha_download_jucesp <- function(path) {
 # }
 
 
-captcha_access_jucesp <- function(f_captcha) {
+captcha_access_jucesp <- function(path) {
   u <- "https://www.jucesponline.sp.gov.br/Pre_Visualiza.aspx?idproduto=&nire=35222827792"
+  f_captcha <- fs::file_temp(
+    pattern = "jucesp",
+    tmp_dir = path,
+    ext = ".jpeg"
+  )
   httr::handle_reset(u)
   r0 <- httr::GET(u)
   h <- xml2::read_html(r0)
@@ -132,7 +137,7 @@ captcha_access_jucesp <- function(f_captcha) {
   guid <- stringr::str_extract(httr::content(r0, "text"), "(?<=guid=)[^\"]+")
   u_captcha <- paste0("https://www.jucesponline.sp.gov.br/CaptchaImage.aspx?guid=", guid)
   r_captcha <- httr::GET(u_captcha, httr::write_disk(f_captcha, TRUE))
-  list(vs = vs, ev = ev)
+  list(f_captcha = f_captcha, vs = vs, ev = ev)
 }
 
 captcha_test_jucesp <- function(obj, label) {
@@ -152,6 +157,8 @@ captcha_test_jucesp <- function(obj, label) {
     "__ASYNCPOST" = "false",
     "ctl00$cphContent$frmPreVisualiza$btEntrar" = "Continuar"
   )
+  # browser()
+  Sys.sleep(3)
   r_final <- httr::POST(u, body = parm, encode = "form")
   acertou <- r_final %>%
     xml2::read_html() %>%

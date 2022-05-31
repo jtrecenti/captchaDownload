@@ -17,12 +17,12 @@ test_that("oracle trt works", {
 
 test_that("oracle jucesp works", {
 
-  model <- captcha::captcha_load_model("/Users/julio/Downloads/model_04.pt")
+  model <- captcha::captcha_load_model("/Users/julio/Downloads/model_24(1).pt")
 
-  res <- oracle_generic(
+  res <- captcha_oracle(
     "data-raw/jucesp/testthat",
     model = model,
-    max_ntry = 10,
+    max_ntry = 1,
     manual = FALSE,
     captcha_access = captcha_access_jucesp,
     captcha_test = captcha_test_jucesp
