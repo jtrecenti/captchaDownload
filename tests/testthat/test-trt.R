@@ -24,8 +24,8 @@ test_that("oracle jucesp works", {
     model = model,
     max_ntry = 10,
     manual = FALSE,
-    captcha_access = captcha_jucesp_access,
-    captcha_test = captcha_jucesp_test
+    captcha_access = captcha_access_jucesp,
+    captcha_test = captcha_test_jucesp
   )
 
   expect_s3_class(res, "tbl_df")

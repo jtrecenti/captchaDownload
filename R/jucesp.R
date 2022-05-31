@@ -122,7 +122,7 @@ captcha_download_jucesp <- function(path) {
 # }
 
 
-captcha_jucesp_access <- function(f_captcha) {
+captcha_access_jucesp <- function(f_captcha) {
   u <- "https://www.jucesponline.sp.gov.br/Pre_Visualiza.aspx?idproduto=&nire=35222827792"
   httr::handle_reset(u)
   r0 <- httr::GET(u)
@@ -135,7 +135,7 @@ captcha_jucesp_access <- function(f_captcha) {
   list(vs = vs, ev = ev)
 }
 
-captcha_jucesp_test <- function(obj, label) {
+captcha_test_jucesp <- function(obj, label) {
   u <- "https://www.jucesponline.sp.gov.br/Pre_Visualiza.aspx?idproduto=&nire=35222827792"
   parm <- list(
     "ctl00$ajaxMaster" = "ctl00$cphContent$ajaxForm|ctl00$cphContent$frmPreVisualiza$btEntrar",
