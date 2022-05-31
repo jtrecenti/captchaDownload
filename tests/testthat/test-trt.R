@@ -38,9 +38,7 @@ test_that("oracle tjmg works", {
 
   res <- captcha_oracle(
     "data-raw/tjmg/testthat",
-    name = "tjmg",
     model = model,
-    ext = ".jpeg",
     max_ntry = 10,
     manual = FALSE,
     captcha_access = captcha_access_tjmg,

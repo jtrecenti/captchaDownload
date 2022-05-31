@@ -72,9 +72,10 @@ captcha_download_tjmg <- function(path) {
 #     xml2::xml_attr("src")
 # }
 
-captcha_access_tjmg <- function(f_captcha) {
+captcha_access_tjmg <- function(path) {
   id <- "00666632620118130480"
   u <- "https://www4.tjmg.jus.br/juridico/sf/proc_resultado.jsp?"
+  f_captcha <- fs::file_temp(tmp_dir = path, ext = ".jpeg", pattern = "tjmg")
   httr::handle_reset(u)
   q <- list(
     comrCodigo = stringr::str_sub(id, -4, -1),
