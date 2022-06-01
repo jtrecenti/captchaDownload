@@ -2,14 +2,16 @@ test_that("oracle trt works", {
 
   model <- captcha::captcha_load_model("/Users/julio/Downloads/trt_99.pt")
 
-  res <- oracle_generic(
+  tictoc::tic()
+  res <- captcha_oracle(
     "data-raw/trt",
     model = model,
     max_ntry = 10,
     manual = FALSE,
-    captcha_access = captcha_trt_access,
-    captcha_test = captcha_trt_test
+    captcha_access = captcha_access_trt,
+    captcha_test = captcha_test_trt
   )
+  tictoc::toc()
 
   expect_s3_class(res, "tbl_df")
 
@@ -19,6 +21,7 @@ test_that("oracle jucesp works", {
 
   model <- captcha::captcha_load_model("/Users/julio/Downloads/model_24(1).pt")
 
+  tictoc::tic()
   res <- captcha_oracle(
     "data-raw/jucesp/testthat",
     model = model,
@@ -27,6 +30,8 @@ test_that("oracle jucesp works", {
     captcha_access = captcha_access_jucesp,
     captcha_test = captcha_test_jucesp
   )
+  tictoc::toc()
+
 
   expect_s3_class(res, "tbl_df")
 
@@ -53,6 +58,7 @@ test_that("oracle tjrs works", {
 
   model <- captcha::captcha_load_model("/Users/julio/Downloads/model_24.pt")
 
+  tictoc::tic()
   res <- captcha_oracle(
     "data-raw/tjrs/testthat",
     model = model,
@@ -61,6 +67,7 @@ test_that("oracle tjrs works", {
     captcha_access = captcha_access_tjrs,
     captcha_test = captcha_test_tjrs
   )
+  tictoc::toc()
 
   expect_s3_class(res, "tbl_df")
 
@@ -71,6 +78,7 @@ test_that("oracle tjpe works", {
 
   model <- captcha::captcha_load_model("/Users/julio/Downloads/model_20.pt")
 
+  tictoc::tic()
   res <- captcha_oracle(
     "data-raw/tjpe/testthat",
     model = model,
@@ -79,6 +87,7 @@ test_that("oracle tjpe works", {
     captcha_access = captcha_access_tjpe,
     captcha_test = captcha_test_tjpe
   )
+  tictoc::toc()
 
   expect_s3_class(res, "tbl_df")
 
@@ -88,6 +97,7 @@ test_that("oracle cadesp works", {
 
   model <- captcha::captcha_load_model("/Users/julio/Downloads/model_27.pt")
 
+  tictoc::tic()
   res <- captcha_oracle(
     "data-raw/cadesp/testthat",
     model = model,
@@ -96,6 +106,7 @@ test_that("oracle cadesp works", {
     captcha_access = captcha_access_cadesp,
     captcha_test = captcha_test_cadesp
   )
+  tictoc::toc()
 
   expect_s3_class(res, "tbl_df")
 
@@ -105,6 +116,7 @@ test_that("oracle esaj works", {
 
   model <- captcha::captcha_load_model("/Users/julio/Downloads/model_05.pt")
 
+  tictoc::tic()
   res <- captcha_oracle(
     "data-raw/esaj/testthat",
     model = model,
@@ -113,6 +125,7 @@ test_that("oracle esaj works", {
     captcha_access = captcha_access_esaj,
     captcha_test = captcha_test_esaj
   )
+  tictoc::toc()
 
   expect_s3_class(res, "tbl_df")
 
@@ -122,6 +135,7 @@ test_that("oracle trf5 works", {
 
   model <- captcha::captcha_load_model("/Users/julio/Downloads/model_09.pt")
 
+  tictoc::tic()
   res <- captcha_oracle(
     "data-raw/trf5/testthat",
     model = model,
@@ -130,6 +144,7 @@ test_that("oracle trf5 works", {
     captcha_access = captcha_access_trf5,
     captcha_test = captcha_test_trf5
   )
+  tictoc::toc()
 
   expect_s3_class(res, "tbl_df")
 
@@ -140,6 +155,7 @@ test_that("oracle sei works", {
 
   model <- captcha::captcha_load_model("/Users/julio/Downloads/model_17.pt")
 
+  tictoc::tic()
   res <- captcha_oracle(
     "data-raw/sei/testthat",
     model = model,
@@ -148,6 +164,7 @@ test_that("oracle sei works", {
     captcha_access = captcha_access_sei,
     captcha_test = captcha_test_sei
   )
+  tictoc::toc()
 
   expect_s3_class(res, "tbl_df")
 
@@ -157,6 +174,7 @@ test_that("oracle rcaptcha works", {
 
   model <- captcha::captcha_load_model("/Users/julio/Downloads/model_05(1).pt")
 
+  tictoc::tic()
   res <- captcha_oracle(
     "data-raw/rcaptcha/testthat",
     model = model,
@@ -165,6 +183,7 @@ test_that("oracle rcaptcha works", {
     captcha_access = purrr::partial(captcha_access_rcaptcha, n_letter = 6),
     captcha_test = captcha_test_rcaptcha
   )
+  tictoc::toc()
 
   expect_s3_class(res, "tbl_df")
 
@@ -175,6 +194,7 @@ test_that("oracle rfb works", {
 
   model <- captcha::captcha_load_model("/Users/julio/Downloads/model_26.pt")
 
+  tictoc::tic()
   res <- captcha_oracle(
     "data-raw/rfb/testthat",
     model = model,
@@ -183,6 +203,7 @@ test_that("oracle rfb works", {
     captcha_access = captcha_access_rfb,
     captcha_test = captcha_test_rfb
   )
+  tictoc::toc()
 
   expect_s3_class(res, "tbl_df")
 
