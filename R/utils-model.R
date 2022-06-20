@@ -17,7 +17,7 @@ captcha_candidates <- function(f_captcha, model, cut_value = log(.01), n) {
   # calculate log-probability
   probs <- as.matrix(torch::nnf_log_softmax(model$model(transformed)[1,..], 2))
 
-  comb_index <- apply(probs > cut_value, 1, which)
+  comb_index <- apply(probs > cut_value, 1, which, simplify = FALSE)
   comb <- purrr::map(purrr::cross(comb_index), purrr::flatten_int)
   comb_matrix <- do.call(rbind, comb)
   candidates <- apply(
