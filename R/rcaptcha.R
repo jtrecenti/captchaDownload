@@ -23,7 +23,6 @@ captcha_access_rcaptcha <- function(path, n_letter) {
   res <- captcha::captcha_generate(FALSE, path, n_chars = n_letter)
   f_captcha <- fs::file_temp("rcaptcha", path, ".png")
   magick::image_write(res$image, f_captcha)
-  Sys.sleep(0.1)
   label_oraculo <- tolower(res$captcha)
   list(f_captcha = f_captcha, ans = label_oraculo)
 }
