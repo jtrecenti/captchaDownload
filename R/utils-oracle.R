@@ -82,7 +82,7 @@ captcha_oracle <- function(path, model = NULL, max_ntry = 10, manual = TRUE,
   }
 
   lab_oracle <- paste0(label, "_", as.character(as.numeric(acertou)))
-  captcha::classify(f_captcha, lab_oracle, rm_old = TRUE)
+  captcha::captcha_annotate(f_captcha, lab_oracle, rm_old = TRUE)
   readr::write_csv(da_log, f_log)
 
 }
